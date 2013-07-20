@@ -36,8 +36,9 @@ class AppServlet(mongoColl: MongoCollection) extends MyScalatraWebAppStack with 
   get("/query/:key/:value") {
     contentType = formats("json")
     val q = MongoDBObject(params("key") -> params("value"))
-    for ( x <- mongoColl.findOne(q) ) yield x
-    List("a", "b", "c")
+    val res = mongoColl.findOne(q).getOrElse(Map("not found" -> true))
+    res
+    //List("a", "b", "c")
   }
   
 }
