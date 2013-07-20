@@ -23,6 +23,8 @@ object MyScalatraWebAppBuild extends Build {
       resolvers += Classpaths.typesafeReleases,
       libraryDependencies ++= Seq(
         "org.mongodb" %% "casbah" % "2.6.0",
+        "org.scalatra" %% "scalatra-json" % "2.2.1",
+        "org.json4s"   %% "json4s-jackson" % "3.2.4",
         "org.scalatra" %% "scalatra" % ScalatraVersion,
         "org.scalatra" %% "scalatra-scalate" % ScalatraVersion,
         "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test",
