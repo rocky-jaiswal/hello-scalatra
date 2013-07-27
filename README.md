@@ -1,4 +1,4 @@
-# My Scalatra Web App #
+# Simple Scalatra Web App #
 
 ## Build & Run ##
 
@@ -10,3 +10,5 @@ $ ./sbt
 ```
 
 If `browse` doesn't launch your browser, manually open [http://localhost:8080/](http://localhost:8080/) in your browser.
+
+## Integrates with MongoDB via Casbah
