@@ -1,17 +1,28 @@
 package in.rockyj.hello
 
+//Scalatra
 import org.scalatra._
 import scalate.ScalateSupport
+import org.scalatra.{FutureSupport, Accepted, ScalatraServlet}
+import org.scalatra.json._
 // MongoDb-specific imports
 import com.mongodb.casbah.Imports._
 // JSON-related libraries
 import org.json4s.{DefaultFormats, Formats}
-// JSON handling support from Scalatra
-import org.scalatra.json._
+//Akka
+import _root_.akka.actor.{ActorRef, Actor, Props, ActorSystem}
+import _root_.akka.util.Timeout
+import _root_.akka.pattern.ask
 
-class AppServlet(mongoColl: MongoCollection) extends MyScalatraWebAppStack with JacksonJsonSupport {
+case class Query(key: String, value: String, mongoColl: MongoCollection)
 
+class AppServlet(mongoColl: MongoCollection, system:ActorSystem) extends MyScalatraWebAppStack with JacksonJsonSupport with FutureSupport {
+
+  val myActor = system.actorOf(Props[MyActor])
+
+  implicit val timeout = Timeout(10)
   protected implicit val jsonFormats: Formats = DefaultFormats
+  protected implicit def executor = system.dispatcher
   
   get("/") {
     contentType="text/html"
@@ -35,10 +46,21 @@ class AppServlet(mongoColl: MongoCollection) extends MyScalatraWebAppStack with 
    */
   get("/query/:key/:value") {
     contentType = formats("json")
-    val q = MongoDBObject(params("key") -> params("value"))
-    val res = mongoColl.findOne(q).getOrElse(Map("not found" -> true))
-    res
-    //List("a", "b", "c")
+    val q = Query(params("key"), params("value"), mongoColl)
+    myActor ? q
   }
   
+}
+
+
+class MyActor extends Actor {
+
+  def receive = {
+    case Query(key, value, mongoColl) => {
+      val q = MongoDBObject(key -> value)
+      val res = mongoColl.findOne(q).getOrElse(Map("not found" -> true))
+      sender ! res
+    }
+  }
+
 }
