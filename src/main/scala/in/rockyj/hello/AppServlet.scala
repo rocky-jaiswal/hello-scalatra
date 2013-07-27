@@ -5,6 +5,7 @@ import org.scalatra._
 import scalate.ScalateSupport
 import org.scalatra.{FutureSupport, Accepted, ScalatraServlet}
 import org.scalatra.json._
+import org.scalatra.CorsSupport
 // MongoDb-specific imports
 import com.mongodb.casbah.Imports._
 // JSON-related libraries
@@ -16,13 +17,17 @@ import _root_.akka.pattern.ask
 
 case class Query(key: String, value: String, mongoColl: MongoCollection)
 
-class AppServlet(mongoColl: MongoCollection, system:ActorSystem) extends MyScalatraWebAppStack with JacksonJsonSupport with FutureSupport {
+class AppServlet(mongoColl: MongoCollection, system:ActorSystem) extends MyScalatraWebAppStack with JacksonJsonSupport with FutureSupport with CorsSupport {
 
   val myActor = system.actorOf(Props[MyActor])
 
   implicit val timeout = Timeout(10)
   protected implicit val jsonFormats: Formats = DefaultFormats
   protected implicit def executor = system.dispatcher
+  
+  options("/*") {
+    response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
+  }
   
   get("/") {
     contentType="text/html"
