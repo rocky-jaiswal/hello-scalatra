@@ -21,7 +21,7 @@ class AppServlet(mongoColl: MongoCollection, system:ActorSystem) extends MyScala
 
   val myActor = system.actorOf(Props[MyActor])
 
-  implicit val timeout = Timeout(10)
+  protected implicit val timeout = Timeout(10)
   protected implicit val jsonFormats: Formats = DefaultFormats
   protected implicit def executor = system.dispatcher
   
